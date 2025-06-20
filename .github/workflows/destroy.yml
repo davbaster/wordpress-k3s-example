@@ -1,0 +1,42 @@
+# .github/workflows/destroy.yml
+
+name: Destroy Azure Infrastructure
+
+on:
+  push:
+    tags:
+      - 'destroy-*' # Se activa con etiquetas como destroy-v1.0, destroy-all, etc.
+
+# Las mismas variables de entorno para saber qué destruir
+env:
+  RESOURCE_GROUP: "rg-wordpress-project"
+  LOCATION: "eastus"
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Inicia sesión en Azure, igual que en el despliegue
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 2. Elimina el Grupo de Recursos
+      - name: Delete Resource Group
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            echo "Iniciando la eliminación del grupo de recursos '${{ env.RESOURCE_GROUP }}'..."
+            az group delete --name ${{ env.RESOURCE_GROUP }} --yes --no-wait
+            echo "La orden de eliminación ha sido enviada. La eliminación ocurrirá en segundo plano en Azure."
+
+      # 3. Mensaje final
+      - name: Show Completion Message
+        run: |
+          echo "############################################################################"
+          echo "##                                                                        ##"
+          echo "##  Se ha enviado la orden para destruir la infraestructura.              ##"
+          echo "##  Puedes verificar su progreso en el Portal de Azure.                   ##"
+          echo "##                                                                        ##"
+          echo "############################################################################"

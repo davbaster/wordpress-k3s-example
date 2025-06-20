@@ -1,0 +1,38 @@
+name: Destroy Azure Infrastructure
+
+on:
+  push:
+    tags:
+      - 'destroy-*' # Triggers on tags like destroy-1.0, destroy-all, etc.
+
+env:
+  RESOURCE_GROUP: "rg-wordpress-project"
+  LOCATION: "eastus"
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Log in to Azure, same as in the deploy workflow
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: <span class="math-inline">\{\{ secrets\.AZURE\_CREDENTIALS \}\}
+\# 2\. Delete the entire Resource Group
+\- name\: Delete Resource Group
+uses\: azure/cli@v1
+with\:
+inlineScript\: \|
+echo "Starting deletion of resource group '</span>{{ env.RESOURCE_GROUP }}'..."
+            az group delete --name ${{ env.RESOURCE_GROUP }} --yes --no-wait
+            echo "Deletion command has been sent. The process will continue in the background in Azure."
+
+      # 3. Final message
+      - name: Show Completion Message
+        run: |
+          echo "############################################################################"
+          echo "##                                                                        ##"
+          echo "##  The command to destroy the infrastructure has been sent.              ##"
+          echo "##  You can monitor its progress in the Azure Portal.                     ##"
+          echo "##                                                                        ##"
+          echo "############################################################################"
