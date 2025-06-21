@@ -17,13 +17,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: <span class="math-inline">\{\{ secrets\.AZURE\_CREDENTIALS \}\}
-\# 2\. Delete the entire Resource Group
-\- name\: Delete Resource Group
-uses\: azure/cli@v1
-with\:
-inlineScript\: \|
-echo "Starting deletion of resource group '</span>{{ env.RESOURCE_GROUP }}'..."
+          creds: secrets.${{ AZURE_CREDENTIALS }}
+      # 2. Delete the entire Resource Group
+      - name: Delete Resource Group
+        uses: azure/cli@v1
+        with:
+        inlineScript: |
+            echo "Starting deletion of resource group '${{ env.RESOURCE_GROUP }}'..."
             az group delete --name ${{ env.RESOURCE_GROUP }} --yes --no-wait
             echo "Deletion command has been sent. The process will continue in the background in Azure."
 
